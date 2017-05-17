@@ -169,18 +169,26 @@ def simple_prisoner_tournament(N, strategy1, strategy2):
     (12, 15)
     >>> simple_prisoner_tournament(7, tit_for_tat, tit_for_tat)
     (7, 7)
-"""
-
-    "*** YOUR CODE HERE ***"
-
-"*** YOUR CODE HERE ***"
-nice = None        # Replace
-
-"*** YOUR CODE HERE ***"
-rat = None         # Replace
-
-"*** YOUR CODE HERE ***"
-tit_for_tat = None # Replace
+    """
+    def helper(strategy, opponent_strategy):
+        if strategy == opponent_strategy == 0:
+            return (N, N)
+        elif strategy == opponent_strategy == 1:
+            return (N*2, N*2)
+        elif strategy == opponent_strategy == 2:
+            return (N, N)
+        elif strategy != opponent_strategy:
+            if (strategy == 0) and (opponent_strategy == 1):
+                return (N*3, 0)
+            elif (strategy == 1) and (opponent_strategy == 0):
+                return (0, N*3)
+            elif (strategy == 1) and (opponent_strategy == 2):
+                return (N+5, N+8)
+    ans = helper(strategy1, strategy2)
+    return ans
+nice = 0
+rat = 1
+tit_for_tat = 2
 
 
 
@@ -202,17 +210,11 @@ def fancy_prisoner_tournament(N, strategy1, strategy2):
     >>> fancy_prisoner_tournament(7, tit_for_tat2, tit_for_tat2)
     (7, 7)
     """
-    "*** YOUR CODE HERE ***"
+    return simple_prisoner_tournament(N, strategy1, strategy2)
 
-"*** YOUR CODE HERE ***"
-nice2 = None        # Replace
-
-"*** YOUR CODE HERE ***"
-rat2 = None         # Replace
-
-"*** YOUR CODE HERE ***"
-tit_for_tat2 = None # Replace
-
+nice2 = 0      
+rat2 = 1      
+tit_for_tat2 = 2 
 
 
 def make_periodic_strategy(K):

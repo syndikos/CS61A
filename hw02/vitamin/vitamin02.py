@@ -27,7 +27,9 @@ def product(n, term):
     >>> product(5, square)   # 1^2 * 2^2 * 3^2 * 4^2 * 5^2
     14400
     """
-    "*** YOUR CODE HERE ***"
+    if n == 0:
+        return 1
+    return term(n) * product(n-1, term)
 
 # The identity function, defined using a lambda expression!
 identity = lambda k: k
@@ -43,8 +45,7 @@ def factorial(n):
     >>> check(HW_SOURCE_FILE, 'factorial', ['Recursion', 'For', 'While'])
     True
     """
-    "*** YOUR CODE HERE ***"
-    return _______
+    return product(n, identity)
 
 def make_adder(n):
     """Return a function that takes an argument K and returns N + K.
@@ -55,5 +56,6 @@ def make_adder(n):
     >>> make_adder(1)(2)
     3
     """
-    "*** YOUR CODE HERE ***"
-    return lambda ________________
+
+    return lambda x: x + n
+

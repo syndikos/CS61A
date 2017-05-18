@@ -170,25 +170,50 @@ def simple_prisoner_tournament(N, strategy1, strategy2):
     >>> simple_prisoner_tournament(7, tit_for_tat, tit_for_tat)
     (7, 7)
     """
-    def helper(strategy, opponent_strategy):
-        if strategy == opponent_strategy == 0:
-            return (N, N)
-        elif strategy == opponent_strategy == 1:
-            return (N*2, N*2)
-        elif strategy == opponent_strategy == 2:
-            return (N, N)
-        elif strategy != opponent_strategy:
-            if (strategy == 0) and (opponent_strategy == 1):
-                return (N*3, 0)
-            elif (strategy == 1) and (opponent_strategy == 0):
-                return (0, N*3)
-            elif (strategy == 1) and (opponent_strategy == 2):
-                return (N+5, N+8)
-    ans = helper(strategy1, strategy2)
-    return ans
-nice = 0
-rat = 1
-tit_for_tat = 2
+#     def helper(strategy, opponent_strategy):
+#         if strategy == opponent_strategy == 0:
+#             return (N, N)
+#         elif strategy == opponent_strategy == 1:
+#             return (N*2, N*2)
+#         elif strategy == opponent_strategy == 2:
+#             return (N, N)
+#         elif strategy != opponent_strategy:
+#             if (strategy == 0) and (opponent_strategy == 1):
+#                 return (N*3, 0)
+#             elif (strategy == 1) and (opponent_strategy == 0):
+#                 return (0, N*3)
+#             elif (strategy == 1) and (opponent_strategy == 2):
+#                 return (N+5, N+8)
+#     ans = helper(strategy1, strategy2)
+#     return ans
+# nice = 0
+# rat = 1
+# tit_for_tat = 2
+    total1 = total2 = 0
+    prev1 = prev2 = None
+    while N > 0:
+        r1 = strategy1(prev2)
+        r2 = strategy2(prev1)
+        if r1 and r2:
+            total1 += 1
+            total2 += 1
+        elif not (r1 or r2):
+            total1 += 2
+            total2 += 2
+        elif r1:
+            total1 += 3
+        else:
+            total2 += 3
+        N -= 1
+        prev1, prev2 = r1, r2
+    return total1, total2
+
+nice = lambda x: True
+
+rat = lambda x: False
+
+tit_for_tat = lambda prev: True if prev is None else prev
+
 
 
 
@@ -210,11 +235,36 @@ def fancy_prisoner_tournament(N, strategy1, strategy2):
     >>> fancy_prisoner_tournament(7, tit_for_tat2, tit_for_tat2)
     (7, 7)
     """
-    return simple_prisoner_tournament(N, strategy1, strategy2)
+#     return simple_prisoner_tournament(N, strategy1, strategy2)
 
-nice2 = 0      
-rat2 = 1      
-tit_for_tat2 = 2 
+# nice2 = 0      
+# rat2 = 1      
+# tit_for_tat2 = 2 
+
+    total1 = total2 = 0
+    prev1 = prev2 = None
+    while N > 0:
+        r1, strategy1 = strategy1(prev2)
+        r2, strategy2 = strategy2(prev1)
+        if r1 and r2:
+            total1 += 1
+            total2 += 1
+        elif not (r1 or r2):
+            total1 += 2
+            total2 += 2
+        elif r1:
+            total1 += 3
+        else:
+            total2 += 3
+        N -= 1
+        prev1, prev2 = r1, r2
+    return total1, total2
+
+nice2 = lambda x: (True, nice2)
+
+rat2 = lambda x: (False, rat2)
+
+tit_for_tat = lambda prev: (True, tit_for_tat) if prev is None else (prev, ti)
 
 
 def make_periodic_strategy(K):
@@ -238,5 +288,14 @@ def make_periodic_strategy(K):
         3, then periodic(2) is a fancy strategy that first cooperates,
         then defects, then cooperates twice, then defects, cooperates twice,
         defects, etc."""
-        "*** YOUR CODE HERE ***"
+        # for number in range(i):
+        #     if (i % K) == 0:
+        #         return 1
+        #     return 0
+        def strat(prev):
+            if i % K == 0:
+                return False, periodic(i + 1)
+            else:
+                return True, periodic(i + 1)
+        return strat
     return periodic(1)

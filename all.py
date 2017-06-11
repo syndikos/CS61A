@@ -282,6 +282,236 @@ def minimum_perimeter(area):
     heights = divisors(area)
     perimeters = [perimeter(width(area, h), h) for h in heights]
     return min(perimeters)
+def apply_to_all(map_fn, s):
+    return [map_fn(x) for x in s]
+
+def keep_if(filter_fn, s):
+    return [x for x in s if filter_fn(x)]
+def reduce(reduce_fn, s, initial):
+    reduced = initial
+    for x in s:
+        reduced = reduce_fn(reduced, x)
+    return reduced
+
+def divisors_of(n):
+    divides_n = lambda x: n% x == 0
+    return [1] + keep_if(divides_n, range(2, n))
+
+from operator import add
+def sum_of_divisors(n):
+    return reduce(add, divisors_of(n), 0)
+def perfect(n):
+    return sum_of_divisors(n) == n
+
+from functools import reduce
+from operator import mul
+def product(s):
+    return reduce(mul, s)
+
+def right_binarize(tree):
+    if is_leaf(tree):
+        return tree
+    if len(tree) > 2:
+        tree = [tree[0], tree[1:]]
+    return [right_binarize(b) for b in tree]
+
+def tree(root, branches=[]):
+    for branch in branches:
+        assert is_tree(branch), 'branches must be trees'
+    return [root] + list(branches)
+
+def root(tree):
+    return tree[0]
+
+def branches(tree):
+    return tree[1:]
+def is_tree(tree):
+    if type(tree) != list or len(tree) < 1:
+        return False
+    for branch in branches(tree):
+        if not is_tree(branch):
+            return False
+    return True
+
+def is_leaf(tree):
+    return not branches(tree)
+
+def fib_tree(n):
+    if n == 0 or n == 1:
+        return tree(n)
+    else:
+        left, right = fib_tree(n -2), fib_tree(n-1)
+        fib_n = root(left) + root(right)
+        return tree(fib_n, [left, right])
+
+def partition_tree(n, m):
+    """Return a partition tree of n using parts of up to m."""
+    if n == 0:
+        return tree(True)
+    elif n < 0 or m == 0:
+        return tree(False)
+    else:
+        left = partition_tree(n-m, m)
+        right = partition_tree(n, m-1)
+        return tree(m, [left, right])
+
+def print_parts(tree, partition=[]):
+    if is_leaf(tree):
+        if root(tree):
+            print(' + '.join(partition))
+        else:
+            left, right = branches(tree)
+            m = str(root(tree))
+            print_parts(left, partition + [m])
+            print_parts(right, partition)
+            
+def make_adder(n):
+    return lambda k: n + k
+
+# @trace1
+# def triple(x):
+#     return 3 * x
+
+#########
+# memoization
+#########
+def memoize(f):
+    cache = {}
+    def helper(x):
+        if x not in cache:
+            cache[x] = f(x)
+        return cache[x]
+    return helper
+
+#########
+# improved fib
+#########
+def fib(n):
+    if n in (0, 1):
+        return n    # if you have to write code like if n == 1 return pass elif n == 3 \
+                    # return pass, you can use if n in (1, 3) return pass.
+                    # when iterate, use turple insteed of list is more effecient.
+    else:
+        return fib(n - 1) + fib(n - 2)
+
+########
+# fib with memoization
+########
+fib = memoize(fib)
+
+#############
+# decoration
+#############
+
+# decorated fib
+@memoize
+def fib_decorated(n):
+    if n in (0, 1):
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+# chained decorators
+def trace(f):
+    def helper(x):
+        call_str = "{0}({1})".format(f.__name__, x)
+        print("Calling {0} ...".format(call_str))
+        result = f(x)
+        print("... returning from {0} = {1}".format(
+              call_str, result))
+        return result
+    return helper
+
+@memoize
+@trace
+def fib_chained_decorators(n):
+    if n in (0, 1):
+        return n
+    else:
+        return fib(n - 1) + fib(n - 2)
+
+empty = 'empty'
+def is_link(s):
+    """s is a linked list if it is empty or a (first, rest) pair."""
+    return s == empty or (len(s) == 2 and is_link(s[1]))
+
+def link(first, rest):
+    """Construct a linked list from its first element and the rest."""
+    assert is_link(rest), "rest must be a linked list."
+    return [first, rest]
+
+def first(s):
+    """Return the first element of a linked list s."""
+    assert is_link(s), "first only applies to linked lists."
+    assert s != empty, "empty linked list has no first element."
+    return s[0]
+
+def rest(s):
+    """Return the rest of the elements of a linked list s."""
+    assert is_link(s), "rest only applies to linked lists."
+    assert s != empty, "empty linked list has no rest."
+    return s[1]
+
+def len_link(s):
+    """Return the length of linked list s."""
+    length = 0
+    while s != empty:
+        s, length = rest(s), length + 1
+    return length
+
+def getitem_link(s, i):
+    """Return the element at index i of linked list s."""
+    while i > 0:
+        s, i = rest(s), i - 1
+    return first(s)
+
+def len_link_recursive(s):
+    """Return the length of a linked list s."""
+    if s == empty:
+        return 0
+    return 1 + len_link_recursive(rest(s))
+
+def getitem_link_recursive(s, i):
+    """Return the element at index i of linked list s."""
+    if i == 0:
+        return first(s)
+    return getitem_link_recursive(rest(s), i - 1)
+
+def extend_link(s, t):
+    """Return a list with the elements of s followed by those of t."""
+    assert is_link(s) and is_link(t)
+    if s == empty:
+        return t
+    else:
+        return link(first(s), extend_link(rest(s), t))
+    
+def apply_to_all_link(f, s):
+    """Apply f to each element of s."""
+    assert is_link(s)
+    if s == empty:
+        return s
+    else:
+        return link(f(first(s)), apply_to_all_link(f, rest(s)))
+def keep_if_link(f, s):
+    """Return a list with elements of s for which f(e) is true."""
+    assert is_link(s)
+    if s == empty:
+        return s
+    else:
+        kept = keep_if_link(f, rest(s))
+        if f(first(s)):
+            return link(first(s), kept)
+        else:
+            return kept
+        
+
+
+
+
+
+
+
+
+
 
 
     

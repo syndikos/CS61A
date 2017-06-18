@@ -503,24 +503,19 @@ def keep_if_link(f, s):
         else:
             return kept
         
+chinese = ['coin', 'string', 'myriad']
+suits = chinese
+suits.pop()
+suits.remove('string')
+suits.append('cup')
+suits.extend(['sword', 'club'])
+suits[2] = 'spade'
+suits[0:2] = ['heart', 'diamond']
 
+nest = list(suits)
+nest[0] = suits
+suits.insert(2, 'Joker')
+suits.insert(2, 'Joker')
+joke = nest[0].pop(2)
 
-
-
-
-
-
-
-
-
-
-    
-    
-    
-
-        
-            
-    
-
-
-    
+nest = (10, 20, [30, 40])

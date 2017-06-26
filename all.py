@@ -519,3 +519,300 @@ suits.insert(2, 'Joker')
 joke = nest[0].pop(2)
 
 nest = (10, 20, [30, 40])
+
+####################
+# Local State
+####################
+def make_withdraw(balance):
+    """Return a withdraw function that draws down balance with each call."""
+    def withdraw(amount):
+        nonlocal balance
+        if amount > balance:
+            return 'Insufficient funds'
+        balance -= amount
+        return balance
+    return withdraw
+withdraw = make_withdraw(100)
+
+#################
+# Implementing Lists and Dictionaries
+#################
+def mutable_link():
+    """Return a functional implementation of a mutable linked list."""
+    contents = empty
+    def dispatch(message, value=None):
+        nonlocal contents
+        if message == 'len':
+            return len_link(contents)
+        elif message == 'getitem':
+            return getitem_link(contents, value)
+        elif message == 'push_first':
+            contents = link(value, contents)
+        elif message == 'pop_first':
+            f = first(contents)
+            contents = rest(contents)
+            return f
+        elif message == 'str':
+            return join_link(contents, ', ')
+    return dispatch
+
+def join_link(contents, symbol=', '):
+    """ contents: linked list"""
+    if contents == empty:
+        return ''
+    else:
+        return str(first(contents)) + symbol + join_link(rest(contents), symbol)
+
+def to_mutable_link(source):
+    """Return a functional list with the same contents as source."""
+    s = mutable_link()
+    for element in reversed(source):
+        s('push_first', element)
+    return s
+
+chinese = ['coin', 'string', 'myriad']
+suits = chinese
+suits.pop()
+suits.remove('string')
+suits
+suits.append('cup')
+suits
+suits.extend(['sword', 'club'])
+suits
+suits[2] = 'spade'
+suits
+suits[0:2] = ['heart', 'diamond']
+suits
+chinese
+nest = list(suits)
+nest
+nest[0] = suits
+nest
+suits
+list(suits)
+a = [1, 2]
+a
+list(a)
+suits.insert(2, 'Joker')
+nest
+nest[0].pop(2)
+suits
+suits.insert(2, 'Joker')
+joke = nest[0].pop(2)
+joke
+suits is nest[0]
+suits is ['heart', 'diamond', 'spade', 'club']
+suits is ['heart', 'diamond', 'spade', 'club']  
+
+#####################
+# list comprehensions
+#####################
+from unicodedata import lookup
+[lookup('WHITE ' + s.upper() + ' SUIT') for s in suits]
+
+s = to_mutable_link(suits)
+type(s)
+
+def dictionary():
+    """Return a functional implementation of a dictionary."""
+    records = []
+    def getitem(key):
+        matches = [r for r in records if r[0] == key]
+        if len(matches) == 1:
+            key, value = matches[0]
+            return value
+    def setitem(key, value):
+        nonlocal records
+        non_matches = [r for r in records if r[0] != key]
+        records = non_matches + [[key, value]]
+    def dispatch(message, key=None, value=None):
+        if message == 'getitem':
+            return getitem(key)
+        elif message == 'setitem':
+            return setitem(key, value)
+    return dispatch
+
+def account(initial_balance):
+    def deposit(amount):
+        dispatch['balance'] += amount
+        return dispatch['balance']
+    def withdraw(amount):
+        if amount > dispatch['balance']:
+            return 'Insufficient funds'
+        dispatch['balance'] -= amount
+        return dispatch['balance']
+    dispatch = {'deposit': deposit,
+                'withdraw': withdraw,
+                'balance': initial_balance}
+    return dispatch
+
+
+def withdraw(account, amount):
+    return account['withdraw'](amount)
+def deposit(account, amount):
+    return account['deposit'](amount)
+def check_balance(account):
+    return account['balance']
+
+# celsius = connector('Celsius')
+# fahrenheit = connector('Fahrenheit')
+
+# def convert(c, f):
+#     """Connect c to f with constraints to convert from Celsius to Fahrenheit."""
+#     u, v, w, x, y = [connector() for _ in range(5)]
+#     multiplier(c, w, u)
+#     multiplier(v, x, u)
+#     adder(v, y, f)
+#     constant(w, 9)
+#     constant(x, 5)
+#     constant(y, 32)
+# from operator import add, sub
+# def adder(a, b, c):
+#     """The constraint that a + b = c."""
+#     return make_ternary_constraint(a, b, c, add, sub, sub)
+# def make_ternary_constraint(a, b, c, ab, ca, cb):
+#     """The constraint that ab(a,b)=c and ca(c,a)=b and cb(c,b) = a."""
+#     def new_value():
+#         av, bv, cv = [connector['has_val']() for connector in (a, b, c)]
+#         if av and bv:
+#             c['set_val'](constraint, ab(a['val'], b['val']))
+#         elif av and cv:
+#             b['set_val'](constraint, ca(c['val'], a['val']))
+#         elif bv and cv:
+#             a['set_val'](constrait, cb(c['val'], b['val']))
+#     def forget_value():
+#         for connector in (a, b, c):
+#             connector['forget'](constraint)
+#     constraint = {'new_val': new_value, 'forget': forget_value}
+#     for connector in (a, b, c):
+#         connector['connect'](constraint)
+#     return constraint
+
+
+
+def converter(c, f):
+    """Connect c to f with constraints to convert from Celsius to Fahrenheit."""
+    u, v, w, x, y = [connector() for _ in range(5)]
+    multiplier(c, w, u) # c indicates celsius
+    multiplier(v, x, u)
+    adder(v, y, f)
+    constant(w, 9)
+    constant(x, 5)
+    constant(y, 32)
+from operator import add, sub
+
+def adder(a, b, c):
+    """The constraint that a + b = c."""
+    return make_ternary_constraint(a, b, c, add, sub, sub)
+
+def make_ternary_constraint(a, b, c, ab, ca, cb):
+    """The constraint that ab(a,b)=c and ca(c,a)=b and cb(c,b) = a."""
+    def new_value():
+        av, bv, cv = [connector['has_val']() for connector in (a, b, c)]
+        if av and bv:
+            c['set_val'](constraint, ab(a['val'], b['val']))
+        elif av and cv:
+            b['set_val'](constraint, ca(c['val'], a['val']))
+        elif bv and cv:
+            a['set_val'](constraint, cb(c['val'], b['val']))
+    def forget_value():
+        for connector in (a, b, c):
+            connector['forget'](constraint)
+    constraint = {'new_val': new_value, 'forget': forget_value}
+    for connector in (a, b, c):
+        connector['connect'](constraint)
+    return constraint
+
+from operator import mul, truediv
+def multiplier(a, b, c):
+    """The constraint that a * b = c."""
+    return make_ternary_constraint(a, b, c, mul, truediv, truediv)
+
+def constant(connector, value):
+    """The constraint that connector = value."""
+    constraint = {}
+    connector['set_val'](constraint, value)
+    return constraint
+
+def connector(name=None):
+    """A connector between constraints."""
+    informant = None
+    constraints = []
+    def set_value(source, value):
+        nonlocal informant
+        val = connector['val']
+        if val is None:
+            informant, connector['val'] = source, value
+            if name is not None:
+                print(name, '=', value)
+            inform_all_except(source, 'new_val', constraints)
+        else:
+            if val != value:
+                print('Contradiction detected:', val, 'vs', value)
+    def forget_value(source):
+        nonlocal informant
+        if informant == source:
+            informant, connector['val'] = None, None
+            if name is not None:
+                print(name, 'is forgotten')
+            inform_all_except(source, 'forget', constraints)
+    connector = {'val': None,\
+    'set-val': set_value, \
+    'forget': forget_value,\
+    'has_val': lambda: connector['val'] is not None, \
+    'connect': lambda source: constraints.append(source)}
+    return connector
+
+def inform_all_except(source, message, constraints):
+    """Inform all constraints of the message, except source."""
+    for c in constraints:
+        if c != source:
+            c[message]()
+            
+celsius = connector('Celsius')
+fahrenheit = connector('Fahrenheit')
+
+#############
+# discussion 3: tree
+#############
+
+def tree(label, branches=[]):
+    return [label] + list(branches)
+
+def label(tree):
+    return tree[0]
+
+def branches(tree):
+    return tree[1:]
+
+def is_leaf(tree):
+    return not branches(tree)
+
+def set_label(val):
+    tree[0] = val
+
+t = tree(1,
+[tree(3,\
+[tree(4),\
+tree(5),\
+tree(6)]),\
+tree(2)])
+
+def square_tree(t):
+    """ Return a tree with the square of every element in t"""
+    new_tree = t[:]
+    def square_tree_helper(new_tree):
+        # nonlocal new_tree
+        # new_tree[0] = new_tree[0] ** 2
+        if is_leaf(new_tree):
+            return new_tree
+        else:
+            for the_tree in branches(new_tree):
+                return tree(label(new_tree) ** 2, square_tree(the_tree))
+    # square_tree_helper(t)
+    return square_tree_helper(new_tree)
+
+
+
+
+
